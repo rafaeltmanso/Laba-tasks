@@ -14,8 +14,14 @@ import com.solvd.library.services.Reservation;
 import com.solvd.library.utils.CustomList;
 import com.solvd.library.utils.OperationResult;
 import com.solvd.library.utils.Repository;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -197,6 +203,29 @@ public class Main {
             checkMemberEligibility(member1);
         } catch (MemberNotEligibleException e) {
             logger.warn("Member eligibility check failed: " + e.getMessage());
+        }
+
+        // --- Task 2: Count special words using StringUtils and FileUtils ---
+        File inputFile = new File("input.txt");
+        File outputFile = new File("output.txt");
+
+        try {
+            List<String> lines = FileUtils.readLines(inputFile, "UTF-8");
+            String content = String.join(" ", lines);
+            String wordToCount = "library";
+            
+            // Case-insensitive count by making both lowercase
+            int count = StringUtils.countMatches(content.toLowerCase(), wordToCount.toLowerCase());
+            
+            String resultLine = "Word '" + wordToCount + "' found " + count + " times in " + inputFile.getName() + " on " + new java.util.Date();
+            FileUtils.writeLines(outputFile, "UTF-8", List.of(resultLine), true);
+            
+            logger.info("");
+            logger.info("Task 2 completed. Check output.txt for results.");
+            logger.info(resultLine);
+            
+        } catch (IOException e) {
+            logger.error("Error processing files in Task 2: " + e.getMessage());
         }
     }
 
