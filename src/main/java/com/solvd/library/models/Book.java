@@ -4,19 +4,20 @@ import com.solvd.library.exceptions.BookNotAvailableException;
 import com.solvd.library.interfaces.IBorrowable;
 import com.solvd.library.interfaces.IManageable;
 import com.solvd.library.interfaces.ISearchable;
+import com.solvd.library.models.BookStatus;
 
 import java.util.Objects;
 
 public class Book extends LibraryItem implements IBorrowable, IManageable, ISearchable {
-    private String isbn;
-    private boolean available;
-    private int timesBorrowed;
+private String isbn;
+private BookStatus status;
+private int timesBorrowed;
 
-    public Book(String title, String isbn, boolean available) {
-        super(title, isbn);
-        this.isbn = isbn;
-        this.available = available;
-        this.timesBorrowed = 0;
+public Book(String title, String isbn, boolean available) {
+    super(title, isbn);
+    this.isbn = isbn;
+    this.status = available ? BookStatus.AVAILABLE : BookStatus.BORROWED;
+    this.timesBorrowed = 0;
     }
 
     public String getTitle() {
@@ -36,13 +37,13 @@ public class Book extends LibraryItem implements IBorrowable, IManageable, ISear
         setId(isbn);
     }
 
-    public boolean isAvailable() {
-        return available;
-    }
+public boolean isAvailable() {
+    return status == BookStatus.AVAILABLE;
+}
 
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
+public void setAvailable(boolean available) {
+    this.status = available ? BookStatus.AVAILABLE : BookStatus.BORROWED;
+}
 
     public int getTimesBorrowed() {
         return timesBorrowed;
@@ -52,20 +53,20 @@ public class Book extends LibraryItem implements IBorrowable, IManageable, ISear
         this.timesBorrowed = timesBorrowed;
     }
 
-    // Marks the book as borrowed if it is available
-    public void borrowBook() throws BookNotAvailableException {
-        if (available) {
-            available = false;
-            timesBorrowed++;
-        } else {
-            throw new BookNotAvailableException("Book '" + getName() + "' is not available for borrowing.");
-        }
+// Marks the book as borrowed if it is available
+public void borrowBook() throws BookNotAvailableException {
+    if (status == BookStatus.AVAILABLE) {
+        status = BookStatus.BORROWED;
+        timesBorrowed++;
+    } else {
+        throw new BookNotAvailableException("Book '" + getName() + "' is not available for borrowing.");
     }
+}
 
-    // Marks the book as returned
-    public void returnBook() {
-        available = true;
-    }
+// Marks the book as returned
+public void returnBook() {
+    status = BookStatus.AVAILABLE;
+}
 
     @Override
     public void borrowItem() {
@@ -93,15 +94,15 @@ public class Book extends LibraryItem implements IBorrowable, IManageable, ISear
                isbn.toLowerCase().contains(query.toLowerCase());
     }
 
-    @Override
-    public String generateShortReport() {
-        return "Book: " + getName() + " (" + (available ? "Available" : "Borrowed") + ")";
-    }
+@Override
+public String generateShortReport() {
+    return "Book: " + getName() + " (" + status + ")";
+}
 
-    @Override
-    public String toString() {
-        return "Book{title='" + getName() + "', isbn='" + isbn + "', available=" + available + "}";
-    }
+@Override
+public String toString() {
+    return "Book{title='" + getName() + "', isbn='" + isbn + "', status=" + status + "}";
+}
 
     @Override
     public boolean equals(Object o) {

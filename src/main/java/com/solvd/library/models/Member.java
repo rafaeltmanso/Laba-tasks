@@ -4,19 +4,22 @@ import com.solvd.library.interfaces.INotifiable;
 import com.solvd.library.interfaces.ISearchable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.solvd.library.models.MemberStatus;
 
 import java.util.Objects;
 
 public class Member extends Person implements INotifiable, ISearchable {
-    private static final Logger logger = LogManager.getLogger(Member.class);
-    private int memberId;
-    private String email;
+private static final Logger logger = LogManager.getLogger(Member.class);
+private int memberId;
+private String email;
+private MemberStatus status;
 
-    public Member(String name, int memberId, String email) {
-        super(name);
-        this.memberId = memberId;
-        this.email = email;
-    }
+public Member(String name, int memberId, String email) {
+    super(name);
+    this.memberId = memberId;
+    this.email = email;
+    this.status = MemberStatus.ACTIVE;
+}
 
     public int getMemberId() {
         return memberId;
@@ -34,6 +37,14 @@ public class Member extends Person implements INotifiable, ISearchable {
         this.email = email;
     }
 
+    public MemberStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MemberStatus status) {
+        this.status = status;
+    }
+
     @Override
     public void receiveNotification(String message) {
         logger.info("[Email Notification to " + email + "] " + message);
@@ -45,10 +56,10 @@ public class Member extends Person implements INotifiable, ISearchable {
                email.toLowerCase().contains(query.toLowerCase());
     }
 
-    @Override
-    public String generateShortReport() {
-        return "Member: " + getName() + " (ID: " + memberId + ")";
-    }
+@Override
+public String generateShortReport() {
+    return "Member: " + getName() + " (ID: " + memberId + ", Status: " + status + ")";
+}
 
     @Override
     public String toString() {

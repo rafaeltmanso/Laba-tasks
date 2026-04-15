@@ -3,12 +3,14 @@ package com.solvd.library.services;
 import com.solvd.library.exceptions.InvalidLoanException;
 import com.solvd.library.models.Book;
 import com.solvd.library.models.Member;
+import com.solvd.library.models.LoanStatus;
 
 public class Loan extends Transaction {
     private Book book;
     private Member member;
     private String borrowDate;
     private String dueDate;
+    private LoanStatus status;
 
     public Loan(Book book, Member member, String borrowDate, String dueDate) throws InvalidLoanException {
         super("Loan for " + book.getTitle());
@@ -19,6 +21,7 @@ public class Loan extends Transaction {
         this.member = member;
         this.borrowDate = borrowDate;
         this.dueDate = dueDate;
+        this.status = LoanStatus.OPEN;
     }
 
     public Book getBook() {
@@ -53,8 +56,16 @@ public class Loan extends Transaction {
         this.dueDate = dueDate;
     }
 
+    public LoanStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LoanStatus status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "Loan{book=" + book.getTitle() + ", member=" + member.getName() + ", due=" + dueDate + "}";
+        return "Loan{book=" + book.getTitle() + ", member=" + member.getName() + ", due=" + dueDate + ", status=" + status + "}";
     }
 }

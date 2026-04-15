@@ -80,6 +80,7 @@ public class Main {
                 library.recordLoan(book1.getIsbn(), loan1);
 
                 logger.info(member1.getName() + " borrowed " + loan1.getBook().getTitle());
+                logger.info("Loan Status: " + loan1.getStatus());
                 logger.info("Borrow date: " + loan1.getBorrowDate());
                 logger.info("Due date: " + loan1.getDueDate());
             } catch (BookNotAvailableException | InvalidLoanException e) {
@@ -206,8 +207,8 @@ public class Main {
         }
 
         // --- Task 2: Count special words using StringUtils and FileUtils ---
-        File inputFile = new File("input.txt");
-        File outputFile = new File("output.txt");
+        File inputFile = new File("src/main/resources/input.txt");
+        File outputFile = new File("src/main/resources/output.txt");
 
         try {
             List<String> lines = FileUtils.readLines(inputFile, "UTF-8");
