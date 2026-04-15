@@ -3,10 +3,7 @@ package com.solvd.library.main;
 import com.solvd.library.exceptions.BookNotAvailableException;
 import com.solvd.library.exceptions.InvalidLoanException;
 import com.solvd.library.exceptions.MemberNotEligibleException;
-import com.solvd.library.interfaces.IBorrowable;
-import com.solvd.library.interfaces.IManageable;
-import com.solvd.library.interfaces.IReportable;
-import com.solvd.library.interfaces.ISearchable;
+import com.solvd.library.interfaces.*;
 import com.solvd.library.models.*;
 import com.solvd.library.services.Loan;
 import com.solvd.library.services.Notification;
@@ -21,7 +18,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -64,6 +63,22 @@ public class Main {
         logger.info("Author: " + author.getName());
         logger.info("Category: " + category.getCategoryName());
         logger.info("Total books in repository: " + bookRepository.count());
+
+        logger.info("");
+        logger.info("--- Task 1: Custom Functional Interfaces with Lambdas ---");
+
+        IPredicate<Book> availableBookPredicate = book -> book.isAvailable();
+        ITransformer<Book, String> bookTitleTransformer = book -> book.getTitle().toUpperCase();
+        ICollectionProcessor<String> tagProcessor = tagList -> tagList.stream()
+                .filter(tag -> !tag.isEmpty())
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+
+        library.getBooks().stream()
+                .filter(availableBookPredicate::test)
+                .map(bookTitleTransformer::transform)
+                .forEach(title -> logger.info("Available book title: " + title));
+
         logger.info("");
 
         // Check if the first book is available
@@ -133,9 +148,8 @@ public class Main {
         people[1] = member1;
         people[2] = author;
 
-        for (Person p : people) {
-            logger.info("Person info: " + p.toString());
-        }
+        ITransformer<Person, String> personTransformer = p -> "Person info: " + p.toString();
+        Arrays.stream(people).map(personTransformer::transform).forEach(logger::info);
 
         logger.info("");
 
@@ -178,9 +192,16 @@ public class Main {
         // IReportable demonstration
         logger.info("Short Reports:");
         IReportable[] reportables = {book1, book2, member1, librarian};
-        for (IReportable r : reportables) {
-            logger.info(r.generateShortReport());
-        }
+
+        IPredicate<IReportable> nonNullReportable = r -> r != null;
+        ICollectionProcessor<IReportable> reportProcessor = reportList -> reportList.stream()
+                .filter(nonNullReportable::test)
+                .collect(Collectors.toList());
+
+        Arrays.stream(reportables)
+                .filter(nonNullReportable::test)
+                .map(IReportable::generateShortReport)
+                .forEach(logger::info);
 
         logger.info("");
 
@@ -205,6 +226,33 @@ public class Main {
         } catch (MemberNotEligibleException e) {
             logger.warn("Member eligibility check failed: " + e.getMessage());
         }
+
+        logger.info("");
+
+        logger.info("--- Task 2: Replace Iterations with Streams ---");
+
+        List<Book> allBooks = library.getBooks();
+        List<Member> allMembers = library.getMembers().stream().collect(Collectors.toList());
+
+        long availableBooksCount = allBooks.stream()
+                .filter(Book::isAvailable)
+                .count();
+        logger.info("Count of available books using Stream: " + availableBooksCount);
+
+        List<String> bookTitles = allBooks.stream()
+                .map(Book::getTitle)
+                .collect(Collectors.toList());
+        logger.info("All book titles: " + bookTitles);
+
+        List<String> memberNames = allMembers.stream()
+                .flatMap(member -> {
+                    String name = member.getName();
+                    return java.util.stream.Stream.of(name.toUpperCase(), name.toLowerCase());
+                })
+                .collect(Collectors.toList());
+        logger.info("Member names transformed (upper/lower): " + memberNames);
+
+        logger.info("");
 
         // --- Task 2: Count special words using StringUtils and FileUtils ---
         File inputFile = new File("src/main/resources/input.txt");

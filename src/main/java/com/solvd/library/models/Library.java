@@ -1,18 +1,20 @@
 package com.solvd.library.models;
 
+import com.solvd.library.interfaces.IPredicate;
 import com.solvd.library.services.Loan;
 import com.solvd.library.services.Notification;
 import com.solvd.library.services.Reservation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Library extends BaseEntity {
     private String address;
-    private List<Book> books; // 1. List
-    private Set<Member> members; // 2. Set
-    private Map<String, Loan> activeLoans; // 3. Map
-    private Queue<Reservation> reservationQueue; // 4. Queue
-    private PriorityQueue<String> urgentNotes; // 5. PriorityQueue
+    private List<Book> books;
+    private Set<Member> members;
+    private Map<String, Loan> activeLoans;
+    private Queue<Reservation> reservationQueue;
+    private PriorityQueue<String> urgentNotes;
 
     public Library(String name, String address) {
         super(name);
@@ -72,10 +74,34 @@ public class Library extends BaseEntity {
         urgentNotes.add(note);
     }
 
+    public List<Book> getAvailableBooks() {
+        return books.stream()
+                .filter(Book::isAvailable)
+                .collect(Collectors.toList());
+    }
+
+    public List<Member> getActiveMembers() {
+        return members.stream()
+                .filter(member -> member.getStatus() == MemberStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getAllBookTitles() {
+        return books.stream()
+                .map(Book::getTitle)
+                .collect(Collectors.toList());
+    }
+
+    public List<Book> findBooks(IPredicate<Book> predicate) {
+        return books.stream()
+                .filter(predicate::test)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public String toString() {
-        return "Library{name='" + getName() + "', address='" + address + 
-               "', booksCount=" + books.size() + 
+        return "Library{name='" + getName() + "', address='" + address +
+               "', booksCount=" + books.size() +
                ", membersCount=" + members.size() + "}";
     }
 }
